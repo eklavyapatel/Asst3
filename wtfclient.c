@@ -3,6 +3,9 @@
 //will this stay changed on the next run if I set it to 0 elsewhere
 int firstRun = 1;
 
+char* IPaddress;
+int portNum;
+
 void error(char *msg)
 {
     perror(msg);
@@ -27,7 +30,7 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
         //check if the first command is configure
-        if(!strcmp(argv[1], "configure")){
+        if((strcmp(argv[1], "configure")) != 0){
             printf("Error: First command must be configure. \n");
             return EXIT_FAILURE;
         }
@@ -36,15 +39,21 @@ int main(int argc, char *argv[])
         IPaddress = argv[2];
         portNum = atoi(argv[3]);
         //successful configuration
-        pringf("Successful configuration. \n");
+        printf("Successful configuration. \n");
+        firstRun = 0;
         return EXIT_SUCCESS;
     }
     
+    printf("This is the IP Address: %s \n", IPaddress);
+    printf("This is the Port Number: %d \n", portNum);
+    //perform add and remove first
+    
+    //connect to server for further operations
     //portno = atoi(argv[2]);
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
         error("ERROR opening socket");
-    server = gethostbyname(argv[1]);
+    server = gethostbyname(IPaddress);
     if (server == NULL) {
         fprintf(stderr,"ERROR, no such host\n");
         exit(0);
@@ -54,7 +63,7 @@ int main(int argc, char *argv[])
     bcopy((char *)server->h_addr,
           (char *)&serv_addr.sin_addr.s_addr,
           server->h_length);
-    serv_addr.sin_port = htons(portno);
+    serv_addr.sin_port = htons(portNum);
     if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0)
         error("ERROR connecting");
     printf("Please enter the message: ");

@@ -7,5 +7,3 @@
 #include <netdb.h>
 #include <unistd.h>
 
-extern char* IPaddress;
-extern int portNum;
