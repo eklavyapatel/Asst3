@@ -1,11 +1,11 @@
-//standard libraries
-#include <stdio.h>
 #include <stdlib.h>
-//for string stuff
 #include <string.h>
-//directory manipulation
-#include <dirent.h>
-#include <netdb.h>
+#include <stdio.h>
+#include <sys/types.h>
 #include <sys/socket.h>
-//used to initialize and delete mutexes
-#include <pthread.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
+
+extern char* IPaddress;
+extern int portNum;
