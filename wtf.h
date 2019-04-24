@@ -8,3 +8,6 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dirent.h>
+#include <errno.h>
+#include <limits.h>
