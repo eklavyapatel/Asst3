@@ -17,6 +17,9 @@ int main(int argc, char *argv[])
 {
     int sockfd, portno, n;
     
+    char* IPaddress = "127.0.0.1";
+    char* portno = "8193";
+    
     struct sockaddr_in serv_addr;
     struct hostent *server;
     
@@ -29,7 +32,7 @@ int main(int argc, char *argv[])
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
         error("ERROR opening socket");
-    server = gethostbyname(argv[1]);
+    server = gethostbyname(IPaddress);
     if (server == NULL) {
         fprintf(stderr,"ERROR, no such host\n");
         exit(0);
@@ -42,7 +45,22 @@ int main(int argc, char *argv[])
     serv_addr.sin_port = htons(portno);
     if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0)
         error("ERROR connecting");
-    printf("Please enter the message: ");
+    printf("Connection Successful");
+    
+    if((strcmp(argv[1], "create")) == 0){
+        //./WTF create <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        char* projectName = argv[2];
+        
+        
+        
+        
+        return EXIT_SUCCESS;
+    }
+    
     bzero(buffer,256);
     fgets(buffer,255,stdin);
     n = write(sockfd,buffer,strlen(buffer));
@@ -55,3 +73,7 @@ int main(int argc, char *argv[])
     printf("%s\n",buffer);
     return 0;
 }
+
+
+
+

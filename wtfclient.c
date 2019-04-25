@@ -11,14 +11,14 @@ int main(int argc, char *argv[]){
     const char* IPaddress;
     int portNum;
     //tries to open configure file
-    int fd = open("configure", O_CREAT | O_WRONLY | O_EXCL, S_IRUSR | S_IWUSR);
+    int fd = open("./.configure", O_CREAT | O_WRONLY | O_EXCL, S_IRUSR | S_IWUSR);
     //if found, that means that configure has already been run, good
     if (fd < 0) {
         if (errno == EEXIST) {
             printf("file found! \n");
             close(fd);
             //i closed it and opened it again because for some reason i was getting an error
-            int fd = open("configure", O_RDONLY );
+            int fd = open("./.configure", O_RDONLY );
             if(fd <0){
                 printf("Error: Could not open file. Please try again.");
             }
@@ -38,7 +38,8 @@ int main(int argc, char *argv[]){
         }
     //otherwise check if user has inputed valid requirements for configure
     } else {
-        //check for valid number of inputs
+        //::::::::::::: C O N F I G U R E :::::::::
+        //./WTF configure <IP> <port>
         if(argc != 4) {
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
@@ -49,7 +50,7 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
         //create the configure file
-        int fd_configure = open("configure", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        int fd_configure = open("./.configure", O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (fd_configure < 0) {
             printf("Error: Could not create configure file. Please try again.\n");
             return EXIT_FAILURE;
@@ -66,9 +67,14 @@ int main(int argc, char *argv[]){
         return EXIT_SUCCESS;
     }
 
-    //perform add and remove first
+    //::::::::::::: A D D :::::::::
     if((strcmp(argv[1], "add")) == 0){
-        printf("good");
+        //./WTF add <project name> <filename>
+        printf("good. \n");
+        if(argc != 4) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
         
         
         
@@ -77,9 +83,14 @@ int main(int argc, char *argv[]){
         
         return EXIT_SUCCESS;
     }
-    //perfrom removal of files
+    //::::::::::::: R E M O V E :::::::::
     if((strcmp(argv[1], "remove")) == 0){
-        printf("good");
+        //./WTF remove <project name> <filename>
+        if(argc != 4) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        printf("good. \n");
         return EXIT_SUCCESS;
     }
     int sockfd, n;
@@ -174,6 +185,9 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
+        char* projectName = argv[2];
+        
+        
         
         
         return EXIT_SUCCESS;
