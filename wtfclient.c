@@ -17,11 +17,12 @@ int main(int argc, char *argv[]){
         if (errno == EEXIST) {
             printf("file found! \n");
             close(fd);
+            //i closed it and opened it again because for some reason i was getting an error
             int fd = open("configure", O_RDONLY );
             if(fd <0){
                 printf("Error: Could not open file. Please try again.");
             }
-            
+            //copy all
             char * temp = (char *)malloc(sizeof(char) * 50);
             int total_length = read(fd, temp, 50);
             char* input = (char *)malloc(sizeof(char) * (total_length + 1));
@@ -68,6 +69,12 @@ int main(int argc, char *argv[]){
     //perform add and remove first
     if((strcmp(argv[1], "add")) == 0){
         printf("good");
+        
+        
+        
+        
+        
+        
         return EXIT_SUCCESS;
     }
     //perfrom removal of files
@@ -85,7 +92,6 @@ int main(int argc, char *argv[]){
     char buffer[256];
  
     //connect to server for further operations
-    //portno = atoi(argv[2]);
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
         error("Error: Could not open socket. \n");
@@ -103,7 +109,120 @@ int main(int argc, char *argv[]){
     if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
         error("Error: Could not connect. \n");
     }
-    printf("Please enter the message: ");
+    printf("Connection Successful!");
+    //Upon successful connection
+    
+    //::::::::::::: C H E C K :: O U T :::::::::
+    if((strcmp(argv[1], "checkout")) == 0){
+        //./WTF checkout <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: U P D A T E :::::::::
+    if((strcmp(argv[1], "update")) == 0){
+        //./WTF update <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: U P G R A D E :::::::::
+    if((strcmp(argv[1], "upgrade")) == 0){
+        //./WTF upgrade <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: C O M M I T :::::::::
+    if((strcmp(argv[1], "commit")) == 0){
+        //./WTF commit <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: P U S H :::::::::
+    if((strcmp(argv[1], "push")) == 0){
+        //./WTF push <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: C R E A T E :::::::::
+    if((strcmp(argv[1], "create")) == 0){
+        //./WTF create <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: D E S T R O Y :::::::::
+    if((strcmp(argv[1], "destroy")) == 0){
+        //./WTF destroy <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: C U R R E N T :: V E R S I O N :::::::::
+    if((strcmp(argv[1], "currentversion")) == 0){
+        //./WTF currentversion <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: H I S T O R Y :::::::::
+    if((strcmp(argv[1], "history")) == 0){
+        //./WTF history <project name>
+        if(argc != 3) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    //::::::::::::: R O L L B A C K :::::::::
+    if((strcmp(argv[1], "rollback")) == 0){
+        //./WTF rollback <project name> <version>
+        if(argc != 4) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
+        
+        return EXIT_SUCCESS;
+    }
+    
     bzero(buffer,256);
     fgets(buffer,255,stdin);
     n = write(sockfd,buffer,strlen(buffer));
