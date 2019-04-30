@@ -11,10 +11,9 @@ int main(int argc, char *argv[]){
     const char* IPaddress;
     int portNum;
     //tries to open configure file
-    int fd = open("./.configure", O_CREAT | O_WRONLY | O_EXCL, S_IRUSR | S_IWUSR);
+    int fd = open("./.configure", O_WRONLY , S_IRUSR | S_IWUSR);
     //if found, that means that configure has already been run, good
-    if (fd < 0) {
-        if (errno == EEXIST) {
+    if (fd > 0) {
             printf("file found! \n");
             close(fd);
             //i closed it and opened it again because for some reason i was getting an error
@@ -35,20 +34,20 @@ int main(int argc, char *argv[]){
             printf ("this is the IP address: %s \n", IPaddress);
             printf ("this is the Port Number: %d \n", portNum);
             close(fd);
-        }
     //otherwise check if user has inputed valid requirements for configure
     } else {
         //::::::::::::: C O N F I G U R E :::::::::
-        //./WTF configure <IP> <port>
-        if(argc != 4) {
-            printf("Error: Invalid number of arguments. \n");
-            return EXIT_FAILURE;
-        }
         //check if the first command is configure
         if((strcmp(argv[1], "configure")) != 0){
             printf("Error: First command must be configure. \n");
             return EXIT_FAILURE;
         }
+        //./WTF configure <IP> <port>
+        if(argc != 4) {
+            printf("Error: Invalid number of arguments. \n");
+            return EXIT_FAILURE;
+        }
+        
         //create the configure file
         int fd_configure = open("./.configure", O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (fd_configure < 0) {
@@ -186,10 +185,34 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
         char* projectName = argv[2];
+        int projectLength = strlen(projectName);
         
-        
-        
-        
+        bzero(buffer,256);
+        //inputs protocol onto buffer
+        //protocol is create: <length of project name> : <project name>
+        sprintf(buffer, "create:%d:%s", projectLength, projectName);
+        //writes on to socket descriptor
+        n = write(sockfd,buffer,strlen(buffer));
+        if (n < 0){
+            error("Error: Could not write to socket. \n");
+        }
+        bzero(buffer,256);
+        //reads response from server onto buffer
+        n = read(sockfd,buffer,255);
+        if (n < 0){
+            error("Error: Could not read from socket. \n");
+        }else{
+            printf("message from server recieved. \n");
+        }
+        //Error handling an existing project
+        if (strcmp(buffer,"Project name already exists") == 0){
+            printf("Error: Project already exists. Please try again.\n");
+            return EXIT_FAILURE;
+        }else{
+            //otherwise server sends back the protocol for the manifest file.
+            //create local version of the project and add this manafest file too it
+            3
+        }
         return EXIT_SUCCESS;
     }
     //::::::::::::: D E S T R O Y :::::::::
