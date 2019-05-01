@@ -7,7 +7,7 @@ void error(char *msg)
 }
 
 int main(int argc, char *argv[]){
-    
+
     const char* IPaddress;
     int portNum;
     //tries to open configure file
@@ -30,8 +30,12 @@ int main(int argc, char *argv[]){
             char* delim = "\n";
             IPaddress = strtok(input, delim);
             portNum = atoi(strtok(NULL, delim));
+<<<<<<< HEAD
             free(input);
             
+=======
+
+>>>>>>> 7b6ff67a91cbb99f58d43547be30abb24489d4f9
             printf ("this is the IP address: %s \n", IPaddress);
             printf ("this is the Port Number: %d \n", portNum);
             close(fd);
@@ -48,7 +52,7 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
+
         //create the configure file
         int fd_configure = open("./.configure", O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (fd_configure < 0) {
@@ -75,12 +79,12 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: R E M O V E :::::::::
@@ -99,9 +103,9 @@ int main(int argc, char *argv[]){
     struct hostent *server;
 
     //signal(SIGINT, ctrlC_shutdown);
-    
+
     char buffer[256];
- 
+
     //connect to server for further operations
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
@@ -122,7 +126,7 @@ int main(int argc, char *argv[]){
     }
     printf("Connection Successful!");
     //Upon successful connection
-    
+
     //::::::::::::: C H E C K :: O U T :::::::::
     if((strcmp(argv[1], "checkout")) == 0){
         //./WTF checkout <project name>
@@ -130,8 +134,8 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
+
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: U P D A T E :::::::::
@@ -141,8 +145,51 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
+
+        char* projectName = argv[2];
+        int nameLength = strlen(argv[2]);
+
+        //create a path to client side Manifest
+        char pathToMan [256];
+        strcpy(pathToMan, "./");
+        strcat(pathToMan, projectName);
+        strcat(pathToMan, "/.Manifest");
+        printf("Path to Manifest: %s \n", pathToMan);
+
+
+        bzero(buffer, 256);
+        //protocol for update
+        sprintf(buffer, "update:%d:%s", nameLength, projectName);
+        //write to socket
+        int i = write(sockfd, buffer, strlen(buffer));
+        if(i < 0){
+          error("Error: Could not write into socket. \n");
+        }
+        //reset buffer to read manifest or error from socket
+        bzero(buffer, 255);
+        //read response
+        i = read(sockfd,buffer,255);
+        if(i < 0){
+          error("Error: Could not read from socket. \n");
+        } else {
+          printf("Message from server recieved. \n");
+        }
+        //error handling if say project doesn't exists
+        if(strcmp(buffer, "Project .Manifest does not exist on server side. \n") == 0){
+          return EXIT_FAILURE;
+        } else {
+          //server sends protocol of Manifest
+          //have to decode that manifest hash to get its content
+          //have to read and compare with the client side manifest
+        }
+        //lets open client side manifest over here
+
+        int fd = open(pathToMan, O_RDONLY);
+        if(fd < 0){
+          error("Error: Could not open client side Manifest. \n");
+        }
         
-        
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: U P G R A D E :::::::::
@@ -152,8 +199,8 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
+
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: C O M M I T :::::::::
@@ -163,8 +210,8 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
+
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: P U S H :::::::::
@@ -174,8 +221,8 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
+
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: C R E A T E :::::::::
@@ -188,7 +235,7 @@ int main(int argc, char *argv[]){
         
         char* projectName = argv[2];
         int projectLength = strlen(projectName);
-        
+
         bzero(buffer,256);
         //inputs protocol onto buffer
         //protocol is create: <length of project name> : <project name>
@@ -223,8 +270,8 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
+
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: C U R R E N T :: V E R S I O N :::::::::
@@ -234,8 +281,8 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
+
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: H I S T O R Y :::::::::
@@ -245,8 +292,8 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
+
+
         return EXIT_SUCCESS;
     }
     //::::::::::::: R O L L B A C K :::::::::
@@ -256,11 +303,11 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
-        
+
+
         return EXIT_SUCCESS;
     }
-    
+
     bzero(buffer,256);
     fgets(buffer,255,stdin);
     n = write(sockfd,buffer,strlen(buffer));
