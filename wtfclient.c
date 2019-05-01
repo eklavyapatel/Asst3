@@ -30,6 +30,7 @@ int main(int argc, char *argv[]){
             char* delim = "\n";
             IPaddress = strtok(input, delim);
             portNum = atoi(strtok(NULL, delim));
+            free(input);
             
             printf ("this is the IP address: %s \n", IPaddress);
             printf ("this is the Port Number: %d \n", portNum);
@@ -184,6 +185,7 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
+        
         char* projectName = argv[2];
         int projectLength = strlen(projectName);
         
@@ -211,7 +213,6 @@ int main(int argc, char *argv[]){
         }else{
             //otherwise server sends back the protocol for the manifest file.
             //create local version of the project and add this manafest file too it
-            3
         }
         return EXIT_SUCCESS;
     }

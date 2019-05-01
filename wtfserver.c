@@ -35,23 +35,25 @@ void *clientHandler(void* client_socket){
         }
         char* command = strtok(client_message, ":");
         
-        if(strcmp(comman, "create")){
-            //server-side stuff fore create goes here
-        }else if(strcmp(command, "create")){
+        if(strcmp(command, "checkout")){
+            //server-side stuff fore commit goes here
+        }else if(strcmp(command, "update")){
+            
+        }else if(strcmp(command, "uprade")){
+            
+        }else if(strcmp(command, "commit")){
+            
+        }else if(strcmp(command, "push")){
             
         }else if(strcmp(command, "create")){
             
-        }else if(strcmp(command, "create")){
+        }else if(strcmp(command, "destroy")){
             
-        }else if(strcmp(command, "create")){
+        }else if(strcmp(command, "currentversion")){
             
-        }else if(strcmp(command, "create")){
+        }else if(strcmp(command, "history")){
             
-        }else if(strcmp(command, "create")){
-            
-        }else if(strcmp(command, "create")){
-            
-        }else if(strcmp(command, "create")){
+        }else if(strcmp(command, "rollback")){
             
         }else{
             //if not valid command
@@ -75,9 +77,13 @@ int main(int argc, char *argv[]) {
         printf("Error:Invalid number of arguments. \n");
         return EXIT_FAILURE;
     }
+    
+    //ok create repo directory
+    int check = mkdir(".server_repo");
+                      
     sock_des = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_des < 0)
-        printf("Error: Could not create socket bitch. \n");
+        printf("Error: Could not create socket. \n");
     bzero((char *) &serv_addr, sizeof(serv_addr));
     portno = atoi(argv[1]);
     serv_addr.sin_family = AF_INET;
@@ -91,6 +97,7 @@ int main(int argc, char *argv[]) {
     struct sockaddr_in cli_addr;
     clilen = sizeof(cli_addr);
     
+    //multithreading tings
     int client_socket;
     while(1){
         client_socket = accept(sock_des, (struct sockaddr*) &cli_addr, &clilen);
