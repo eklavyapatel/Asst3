@@ -30,12 +30,7 @@ int main(int argc, char *argv[]){
             char* delim = "\n";
             IPaddress = strtok(input, delim);
             portNum = atoi(strtok(NULL, delim));
-<<<<<<< HEAD
             free(input);
-            
-=======
-
->>>>>>> 7b6ff67a91cbb99f58d43547be30abb24489d4f9
             printf ("this is the IP address: %s \n", IPaddress);
             printf ("this is the Port Number: %d \n", portNum);
             close(fd);
