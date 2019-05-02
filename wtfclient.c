@@ -30,7 +30,7 @@ int main(int argc, char *argv[]){
             char* delim = "\n";
             IPaddress = strtok(input, delim);
             portNum = atoi(strtok(NULL, delim));
-            free(input);
+
             printf ("this is the IP address: %s \n", IPaddress);
             printf ("this is the Port Number: %d \n", portNum);
             close(fd);
@@ -170,6 +170,7 @@ int main(int argc, char *argv[]){
           printf("Message from server recieved. \n");
         }
         //error handling if say project doesn't exists
+        int fd2;
         if(strcmp(buffer, "Project .Manifest does not exist on server side. \n") == 0){
           return EXIT_FAILURE;
         } else {
@@ -177,13 +178,17 @@ int main(int argc, char *argv[]){
           //have to decode that manifest hash to get its content
           //have to read and compare with the client side manifest
         }
+        char * clientman = (char*)malloc(INT_MAX);
+        char * serverman = (char*)malloc(INT_MAX);
         //lets open client side manifest over here
-
         int fd = open(pathToMan, O_RDONLY);
         if(fd < 0){
           error("Error: Could not open client side Manifest. \n");
         }
-        
+        //reading client manual
+        read(fd,clientman,INT_MAX);
+        //idk if i will have to read server manifest since i will be decoding the hash
+        read();
 
         return EXIT_SUCCESS;
     }
@@ -227,7 +232,6 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
         char* projectName = argv[2];
         int projectLength = strlen(projectName);
 
@@ -255,6 +259,7 @@ int main(int argc, char *argv[]){
         }else{
             //otherwise server sends back the protocol for the manifest file.
             //create local version of the project and add this manafest file too it
+            3
         }
         return EXIT_SUCCESS;
     }
