@@ -18,56 +18,59 @@ int sock_des = 0;
 //handles the client on a particular thread. must command calls go in here
 void *clientHandler(void* client_socket){
     int socket_num = *(int*) client_socket;
-    
+
     char client_message[256];
     memset(client_message, '\0', sizeof(client_message));
-    
+
     while(1){
         //lets reset the string storage client_message before starting
         memset(client_message, '\0', sizeof(client_message));
-        
+
         read_return = read(socket_num, client_message, 255);//this will read from socket and store message in client_message char array
         if(read_return  == -1)
         {
             //we are going to need to send back read error, please try again
             write(socket_num, "We had trouble reading that. Please try again.", 52);
-            
+
         }
         char* command = strtok(client_message, ":");
-        
+
         if(strcmp(command, "checkout")){
             //server-side stuff fore commit goes here
         }else if(strcmp(command, "update")){
-            
+
         }else if(strcmp(command, "uprade")){
-            
+
         }else if(strcmp(command, "commit")){
-            
+
         }else if(strcmp(command, "push")){
-            
+
         }else if(strcmp(command, "create")){
-            
+
         }else if(strcmp(command, "destroy")){
-            
+            //Step 1: Lock the repo
+            //Step 2: Expire and pending commits
+            //Step 3: Delete all files and subdirectories in the project directory
+            //Step 4: Send success message
         }else if(strcmp(command, "currentversion")){
-            
+            //Step 1: 
         }else if(strcmp(command, "history")){
-            
+
         }else if(strcmp(command, "rollback")){
-            
+
         }else{
             //if not valid command
         }
         close(socket_num);
-        
+
         return NULL;
 }
 
 //main function madafaka
 int main(int argc, char *argv[]) {
-    
+
     signal(SIGINT, ctrlC_shutdown);
-    
+
     int portno, clilen;
     char buffer[256];
     struct sockaddr_in serv_addr;
@@ -77,10 +80,10 @@ int main(int argc, char *argv[]) {
         printf("Error:Invalid number of arguments. \n");
         return EXIT_FAILURE;
     }
-    
+
     //ok create repo directory
     int check = mkdir(".server_repo");
-                      
+
     sock_des = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_des < 0)
         printf("Error: Could not create socket. \n");
@@ -93,17 +96,17 @@ int main(int argc, char *argv[]) {
         printf("Error: Could not perform binding. \n");
     }
     listen(sock_des,5);
-    
+
     struct sockaddr_in cli_addr;
     clilen = sizeof(cli_addr);
-    
+
     //multithreading tings
     int client_socket;
     while(1){
         client_socket = accept(sock_des, (struct sockaddr*) &cli_addr, &clilen);
         if(client_socket > 0){
             printf("We have successfully connected to the Client\n");
-            
+
             threadsLL* newNode = (threadsLL*) malloc(sizeof(threadsLL));
             newNode->next = NULL;
             newNode->sockfd = client_socket;
@@ -115,7 +118,7 @@ int main(int argc, char *argv[]) {
                 newNode->next = front;
                 front = newNode;
             }
-            
+
             pthread_create(&newNode->name, NULL, clientHandler, &client_socket);
         }
     }
@@ -130,14 +133,14 @@ int main(int argc, char *argv[]) {
     char* command = strtok(buffer, ":");
     if (strcmp(command, "create")==0){
         //operate on create
-        
+
     }
-    
-    
+
+
     printf("Here is the message: %s\n",buffer);
-    
-    
-    
+
+
+
     n = write(newsock_des,"I got your message",18);
     if (n < 0) error("ERROR writing to socket");*/
     return EXIT_SUCCESS;
