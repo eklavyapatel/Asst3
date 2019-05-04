@@ -298,6 +298,8 @@ int main(int argc, char *argv[]){
         int n = write(sockfd, buffer, strlen(buffer));
         if(n < 0){
           error("Error: Could not write to socket. \n");
+        } else {
+          printf("Message sent.\n");
         }
 
         //read from socket - this confirms whether the task was completed or failed
@@ -323,6 +325,32 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
 
+        char* projectName = argv[2];
+        int nameLength = strlen(argv[2]);
+
+        bzero(buffer, 256);
+        //make the protocol in buffer
+        sprintf(buffer, "currentversion:%d:%s",nameLength,projectName);
+        //write protocol to server
+        int n = write(sockfd, buffer, strlen(buffer));
+        if(n < 0) {
+          error("Error: Could not write to socket. \n");
+        } else {
+          printf("Message sent.\n");
+        }
+
+        //read message from socket
+        n = read(sockfd, buffer, 255);
+        if(n < 0){
+          error("Error: Could not read from socket. \n");
+        } else {
+          printf("Message from server recieved. \n");
+        }
+        //check for errors
+        if(strcmp(buffer, "Project does not exist.") == 0){
+          printf("Error: Project doesn't exist can not get current version.\n");
+          return EXIT_FAILURE;
+        }
 
         return EXIT_SUCCESS;
     }
