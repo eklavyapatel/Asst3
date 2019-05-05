@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
                 front = newNode;
             }
             pthread_create(&newNode->name, NULL, clientHandler, &client_socket);
- 
+
             pthread_join(newNode->name, NULL);
         }
     }
@@ -135,7 +135,7 @@ void *clientHandler(void* client_socket){
 
     char client_message[256];
     memset(client_message, '\0', sizeof(client_message));
-    
+
     char send_message[256];
     memset(send_message, '\0', sizeof(send_message));
 
@@ -172,10 +172,10 @@ void *clientHandler(void* client_socket){
             //recieves the protocol for create, decifer and execute.
             int projectNameLength = atoi(strtok(NULL,s));
             char* projectName = strtok(NULL,s);
-            
+
             //printf ("%d\n",projectNameLength);
             //printf ("%s\n",projectName);
-            
+
             char repoPath[50];
             sprintf(repoPath,"./server_repo/%s/",projectName);
             //printf("%s\n",repoPath);
@@ -214,7 +214,7 @@ void *clientHandler(void* client_socket){
                 fclose(manifest);
                 //now send that shit over
                 write(socket_num, send_message, sizeof(send_message));
-                
+
             }else{
             //project already exists. send message to client
                 //printf("directory exists.\n");
@@ -246,11 +246,32 @@ void *clientHandler(void* client_socket){
               write(socket_num, "Successfully deleted project",28);
             } else if(check < 0){
               write(socket_num, "Project name doesn't exist",25);
-              
+
             }
-            
+
         }else if((strcmp(command, "currentversion")) == 0){
-            //Step 1:
+          //create the path to the desired project
+          int nameLength = atoi(strtok(NULL,s));
+          char * projectName = strtok(NULL,s);
+          char cvbuff [256];
+          sprintf(cvbuff, "./server_repo/%s", projectName);
+
+          //Step 1: Open the directory
+          DIR *d = opendir(cvbuff);
+          struct dirent * file;
+          if(d == NULL){
+            write(socket_num, "Project does not exist.", 23);
+            return;
+          } else {
+            while(file = readdir(d) != NULL){
+              if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0 ){
+                continue;
+              }
+
+            }
+          }
+          //Step 2: Look for greatest version
+          //Step 3: Send that version and the manifest through
         }else if((strcmp(command, "history")) == 0){
 
         }else if((strcmp(command, "rollback")) == 0){
@@ -260,6 +281,6 @@ void *clientHandler(void* client_socket){
         }
     }
     close(socket_num);
-    
+
     return NULL;
 }
