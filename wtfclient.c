@@ -260,7 +260,7 @@ int main(int argc, char *argv[]){
         }
         printf("%s\n",buffer);
         //Error handling an existing project
-        if (strcmp(buffer,"Project name already exists") == 0){
+        if ((strcmp(buffer,"Project name already exists. Please try a different filename.")) == 0){
             printf("Error: Project already exists. Please try again.\n");
             return EXIT_FAILURE;
         }else{
