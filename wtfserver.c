@@ -142,11 +142,9 @@ int main(int argc, char *argv[]) {
                 newNode->next = front;
                 front = newNode;
             }
-
-            printf("before\n");
             pthread_create(&newNode->name, NULL, clientHandler, &client_socket);
-            printf("after\n");
-		//pthread_join(newNode->name, NULL);
+ 
+            pthread_join(newNode->name, NULL);
         }
     }
     return EXIT_FAILURE;
@@ -154,13 +152,14 @@ int main(int argc, char *argv[]) {
 
 //handles the client on a particular thread. must command calls go in here
 void *clientHandler(void* client_socket){
-    printf("at client handle\n");
+    //printf("at client handle\n");
     int socket_num = *(int*) client_socket;
-    
-    int check;
 
     char client_message[256];
     memset(client_message, '\0', sizeof(client_message));
+    
+    char send_message[256];
+    memset(send_message, '\0', sizeof(send_message));
 
     while(1){
         //lets reset the string storage client_message before starting
@@ -171,21 +170,13 @@ void *clientHandler(void* client_socket){
         if(read_return  == -1){
             //we are going to need to send back read error, please try again
             write(socket_num, "We had trouble reading that. Please try again.", 52);
-        }else{
-            printf("%s\n", client_message);
         }
 
         const char s[2] = ":";
-        printf("Right before we tokenize.\n");
+        //printf("Right before we tokenize.\n");
         char* command = strtok(client_message, s);
 
-        printf("%s\n", command);
-
-        /*read_return = read(socket_num, client_message, 255);//this will read from socket and store message in client_message char array
-        if(read_return  == -1){
-            //we are going to need to send back read error, please try again
-            write(socket_num, "We had trouble reading that. Please try again.", 52);
-        }*/
+        //printf("%s\n", command);
 
         if((strcmp(command, "checkout")) == 0){
             //server-side stuff fore commit goes here
@@ -198,50 +189,37 @@ void *clientHandler(void* client_socket){
         }else if((strcmp(command, "push")) == 0){
 
         }else if((strcmp(command, "create")) == 0){
-/**************************************************************************************/
 /************************** C R E A T E ***********************************************/
-/**************************************************************************************/
-            printf("command is create. \n");
+            //printf("command is create. \n");
             //recieves the protocol for create, decifer and execute.
-            int projectNameLength;
-            char* projectName;
-            projectNameLength = atoi(strtok(NULL,s));
-            projectName = strtok(NULL,s);
-            //now create the directory in repo
-            printf ("%d\n",projectNameLength);
-            printf ("%s\n",projectName);
+            int projectNameLength = atoi(strtok(NULL,s));
+            char* projectName = strtok(NULL,s);
+            
+            //printf ("%d\n",projectNameLength);
+            //printf ("%s\n",projectName);
             
             char repoPath[50];
-            sprintf(repoPath,"/server_repo/%s",projectName);
-            printf("%s\n",repoPath);
-            struct stat projectCheck;
-            if (stat(repoPath, &projectCheck) == 0 && S_ISDIR(sb.st_mode)){
-                //project exists on repo
-                printf("YES\n");
-                write(socket_num, "Project already exists. Please try a different filename.", 56);
-            }else{
-                //project does not exist, create it.
-                printf("NO\n");
-                check = mkdir(repoPath, 0700);
-                if(!check){
-                    printf("created\n");
-                }else{
-                    printf("not created\n");
+            sprintf(repoPath,"./server_repo/%s/",projectName);
+            //printf("%s\n",repoPath);
+            struct stat projectDir = {0};
+            //now create the directory in repo
+            if (stat(repoPath, &projectDir ) == -1) {
+                int check = mkdir(repoPath, 0700);
+                if(check != 0){
+                    printf("Unable to make directory.\n");
                 }
-                //initialize the first version number
+                //project file created. create version 1 file and manifest file
                 char version1Path[50];
-                sprintf(version1Path,"/server_repo/%s/version1",projectName);
-                printf("%s\n",version1Path);
+                sprintf(version1Path,"./server_repo/%s/version1",projectName);
+                //printf("%s\n",version1Path);
                 check = mkdir(version1Path, 0700);
-                if(!check){
-                    printf("created\n");
-                }else{
-                    printf("not created\n");
+                if(check != 0){
+                    printf("Unable to make directory.\n");
                 }
                 //create manifest file in it
                 char manifestPath[50];
-                sprintf(manifestPath,"/server_repo/%s/version1/Manifest",projectName);
-                printf("%s\n",manifestPath);
+                sprintf(manifestPath,"./server_repo/%s/version1/Manifest",projectName);
+                //printf("%s\n",manifestPath);
                 //"ab+" - Creates an empty file for both reading and writing.
                 FILE *manifest = fopen(manifestPath, "w+");
                 if (manifest == NULL){
@@ -249,11 +227,24 @@ void *clientHandler(void* client_socket){
                 }
                 int versionNum = 1;
                 fprintf(manifest,"%d\n",versionNum);
+                int manifestBytes = 2;
+                char* manifestContent = "1\n";
+                printf("Project: %s, successfully created.\n",projectName);
+                //PROTOCOL  <number of bytes>:<contents of manifest>
+                memset(send_message, '\0', sizeof(send_message));
+                sprintf(send_message,"%d:%s",manifestBytes,manifestContent);
                 fclose(manifest);
                 //now send that shit over
+                write(socket_num, send_message, sizeof(send_message));
+                
+            }else{
+            //project already exists. send message to client
+                //printf("directory exists.\n");
+                write(socket_num, "Error", 6);
             }
 
         }else if((strcmp(command, "destroy")) == 0){
+/************************** D E L E T E ***********************************************/
             printf("Command is destroy. \n");
             int nameLength;
             char* projectName;
@@ -277,9 +268,9 @@ void *clientHandler(void* client_socket){
               write(socket_num, "Successfully deleted project",28);
             } else if(check < 0){
               write(socket_num, "Project name doesn't exist",25);
-              return;
+              
             }
-            return;
+            
         }else if((strcmp(command, "currentversion")) == 0){
             //Step 1:
         }else if((strcmp(command, "history")) == 0){
@@ -289,7 +280,8 @@ void *clientHandler(void* client_socket){
         }else{
             //if not valid command
         }
-        close(socket_num);
     }
-    pthread_exit(NULL);
+    close(socket_num);
+    
+    return NULL;
 }

@@ -236,9 +236,8 @@ int main(int argc, char *argv[]){
         char* projectName = argv[2];
         int projectLength = strlen(projectName);
 
-        printf("%s\n",projectName);
-        printf("%d\n", projectLength);
-        //good so far
+        //printf("%s\n",projectName);
+        //printf("%d\n", projectLength);
         bzero(buffer,256);
         //inputs protocol onto buffer
         //protocol is create:<length of project name>:<project name>
@@ -247,25 +246,40 @@ int main(int argc, char *argv[]){
         n = write(sockfd,buffer,strlen(buffer));
         if (n < 0){
             printf("Error: Could not write to socket. \n");
-        }else{
-            printf("Protocol sent to server. \n");
         }
         bzero(buffer,256);
         //reads response from server onto buffer
         n = read(sockfd,buffer,255);
         if (n < 0){
             printf("Error: Could not read from socket. \n");
-        }else{
-            printf("Message from server recieved. \n");
         }
-        printf("%s\n",buffer);
+        //printf("%s\n",buffer);
         //Error handling an existing project
-        if ((strcmp(buffer,"Project name already exists. Please try a different filename.")) == 0){
-            printf("Error: Project already exists. Please try again.\n");
+        if ((strcmp(buffer,"Error")) == 0){
+            printf("Error: Project already exists. Please try a different filename.\n");
             return EXIT_FAILURE;
         }else{
             //otherwise server sends back the protocol for the manifest file.
             //create local version of the project and add this manafest file too it
+            //create project file
+            char projectPath[50];
+            sprintf(projectPath,"./%s/",projectName);
+            int check = mkdir(projectPath, 0700);
+            if(check != 0){
+                printf("Unable to make directory.\n");
+            }
+            //PROTOCOL  <number of bytes>:<contents of manifest>
+            //make .Manifest file
+            char manifestPath[50];
+            sprintf(manifestPath,"./%s/Manifest",projectName);
+            FILE *manifest = fopen(manifestPath, "w+");
+            if (manifest == NULL){
+                printf("Failed to create Manifest file for project.\n");
+            }
+            int versionNum = 1;
+            fprintf(manifest,"%d\n",versionNum);
+            fclose(manifest);
+            printf("Local Repository successfully created. \n");
         }
         return EXIT_SUCCESS;
     }
