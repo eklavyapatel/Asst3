@@ -52,9 +52,10 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
+        
         return EXIT_SUCCESS;
     }
-    /********************R E M O V E *****************************/
+    /******************** R E M O V E *****************************/
     if((strcmp(argv[1], "remove")) == 0){
         //./WTF remove <project name> <filename>
         if(argc != 4) {
@@ -64,8 +65,8 @@ int main(int argc, char *argv[]){
         printf("good. \n");
         return EXIT_SUCCESS;
     }
-    /******************** CONNECT SERVER *****************************/
-    printf("Welcome! Attempting to connect to host \n");
+    /**************** C O N N E C T  S E R V E R  *************************/
+    printf("Welcome! Attempting to connect to server. \n");
     int sockfd, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
@@ -80,7 +81,7 @@ int main(int argc, char *argv[]){
     
     //signal(SIGINT, ctrlC_shutdown);
     server = gethostbyname(IPaddress);
-    printf("%s\n",IPaddress);
+
     if (server == NULL) {
         printf("Error: No such host. \n");
         //return EXIT_FAILURE;
@@ -103,7 +104,6 @@ int main(int argc, char *argv[]){
     printf("Connection Successful!\n");
     //Upon successful connection
 
-    
    /******************** CHECK OUT *****************************/
     if((strcmp(argv[1], "checkout")) == 0){
         //./WTF checkout <project name>
@@ -235,7 +235,10 @@ int main(int argc, char *argv[]){
         }
         char* projectName = argv[2];
         int projectLength = strlen(projectName);
-
+        
+        printf("%s\n",projectName);
+        printf("%d\n", projectLength);
+        //good so far
         bzero(buffer,256);
         //inputs protocol onto buffer
         //protocol is create:<length of project name>:<project name>
@@ -244,6 +247,8 @@ int main(int argc, char *argv[]){
         n = write(sockfd,buffer,strlen(buffer));
         if (n < 0){
             printf("Error: Could not write to socket. \n");
+        }else{
+            printf("Protocol sent to server. \n");
         }
         bzero(buffer,256);
         //reads response from server onto buffer
