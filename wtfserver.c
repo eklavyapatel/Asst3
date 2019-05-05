@@ -44,8 +44,7 @@ void *clientHandler(void* client_socket){
             write(socket_num, "We had trouble reading that. Please try again.", 52);
 
         }
-        char* command = strtok(client_message, ":");
-
+        
         if(strcmp(command, "checkout")){
             //server-side stuff fore commit goes here
         }else if(strcmp(command, "update")){
@@ -88,7 +87,7 @@ void *clientHandler(void* client_socket){
             //if not valid command
         }
         close(socket_num);
-
+    }
         return NULL;
 }
 
@@ -101,9 +100,8 @@ int main(int argc, char *argv[]) {
     int portno;
     socklen_t clilen;
 
-    signal(SIGINT, ctrlC_shutdown);
+    //signal(SIGINT, ctrlC_shutdown);
 
-    int portno, clilen;
     char buffer[256];
     struct sockaddr_in serv_addr;
     memset(&serv_addr, 0, sizeof(serv_addr));

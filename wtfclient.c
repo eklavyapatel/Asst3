@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
         return EXIT_SUCCESS;
     }
 
-    //::::::::::::: A D D :::::::::
+    /******************** A D D *****************************/
     if((strcmp(argv[1], "add")) == 0){
         //./WTF add <project name> <filename>
         printf("good. \n");
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]){
         }
         return EXIT_SUCCESS;
     }
-    //::::::::::::: R E M O V E :::::::::
+    /********************R E M O V E *****************************/
     if((strcmp(argv[1], "remove")) == 0){
         //./WTF remove <project name> <filename>
         if(argc != 4) {
@@ -83,6 +83,7 @@ int main(int argc, char *argv[]){
         printf("good. \n");
         return EXIT_SUCCESS;
     }
+    /******************** CONNECT SERVER *****************************/
     printf("Welcome! Attempting to connect to host \n");
     int n;
     struct sockaddr_in serv_addr;
@@ -110,9 +111,6 @@ int main(int argc, char *argv[]){
     serv_addr.sin_family = AF_INET;
     bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
     serv_addr.sin_port = htons(portNum);
-    if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
-        printf("Error: Could not connect. \n");
-    }
     
     socklen_t size = sizeof(serv_addr);
     
@@ -183,7 +181,7 @@ int main(int argc, char *argv[]){
           //server sends protocol of Manifest
           //have to decode that manifest hash to get its content
           //have to read and compare with the client side manifest
-          int sfd = open(sockfd,O_RDONLY);
+          /****int sfd = open(sockfd,O_RDONLY);*/
           bzero(buffer,256);
           read(sockfd,buffer,255);
           //now buffer has the protocol Message - tokenize and decode
@@ -193,11 +191,11 @@ int main(int argc, char *argv[]){
           int length;
           char dirName[256];
           while(token != NULL){
-            if(counter == 1 || counter = 3){
+            if(counter == 1 || counter == 3){
               length = atoi(token);
-            } else if(counter = 2){
-              sprintf(dirName, token);
-            } else if(counter = 4){
+            } else if(counter == 2){
+              /***sprintf(dirName, token);***/
+            } else if(counter == 4){
               //decode this
             }
 
@@ -213,7 +211,7 @@ int main(int argc, char *argv[]){
         //reading client manual
         read(fd,clientman,INT_MAX);
         //idk if i will have to read server manifest since i will be decoding the hash
-        read();
+        //read();
 
         return EXIT_SUCCESS;
     }
@@ -285,7 +283,6 @@ int main(int argc, char *argv[]){
         }else{
             //otherwise server sends back the protocol for the manifest file.
             //create local version of the project and add this manafest file too it
-            3
         }
         return EXIT_SUCCESS;
     }
@@ -304,7 +301,7 @@ int main(int argc, char *argv[]){
         sprintf(buffer,"destroy:%d:%s", nameLength, projectName);
         int n = write(sockfd, buffer, strlen(buffer));
         if(n < 0){
-          error("Error: Could not write to socket. \n");
+          printf("Error: Could not write to socket. \n");
         } else {
           printf("Message sent.\n");
         }
@@ -312,7 +309,7 @@ int main(int argc, char *argv[]){
         //read from socket - this confirms whether the task was completed or failed
         n = read(sockfd, buffer, 255);
         if(n < 0){
-          error("Error: Could not read from socket. \n");
+          printf("Error: Could not read from socket. \n");
         } else {
           printf("Message from server recieved. \n");
         }
@@ -341,7 +338,7 @@ int main(int argc, char *argv[]){
         //write protocol to server
         int n = write(sockfd, buffer, strlen(buffer));
         if(n < 0) {
-          error("Error: Could not write to socket. \n");
+          printf("Error: Could not write to socket. \n");
         } else {
           printf("Message sent.\n");
         }
@@ -349,7 +346,7 @@ int main(int argc, char *argv[]){
         //read message from socket
         n = read(sockfd, buffer, 255);
         if(n < 0){
-          error("Error: Could not read from socket. \n");
+          printf("Error: Could not read from socket. \n");
         } else {
           printf("Message from server recieved. \n");
         }

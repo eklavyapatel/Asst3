@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include <pthreads.h>
+#include <pthread.h>
 
 typedef struct threadsLL
 {
@@ -63,9 +63,9 @@ void *clientHandler(void* client_socket){
     }
 }
 
-int main()
-{
-    int socketfd, newsockfd, portno, clilen;
+int main(int argc, char *argv[]){
+    int socketfd, newsockfd, portno;
+    socklen_t clilen;
     char buffer[256];
     struct sockaddr_in serv_addr, cli_addr;
     int n;
@@ -77,7 +77,7 @@ int main()
     if (sockfd < 0)
         error("ERROR opening socket");
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    portno = 8193;
+    portno = atoi(argv[1]);
     
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -95,7 +95,7 @@ int main()
     int client_socket;
     while(1){
         client_socket = accept(socketfd, (struct sockaddr*) &cli_addr, &clilen);
-        if (cleint_socket < 0){
+        if (client_socket < 0){
             error("ERROR on accept");
         }
         //now we need to check if we have actually recieved a proper client

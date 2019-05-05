@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <pthread.h>
 
 void error(char *msg)
 {
@@ -17,8 +18,8 @@ int main(int argc, char *argv[])
 {
     int sockfd, portno, n;
     
-    char* IPaddress = "127.0.0.1";
-    char* portno = "8193";
+    char* IPaddress = argv[1];
+    portno = atoi(argv[2]);
     
     struct sockaddr_in serv_addr;
     struct hostent *server;
