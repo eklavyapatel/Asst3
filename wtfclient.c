@@ -1,39 +1,15 @@
 #include "wtf.h"
-int sockfd = -1;
 
 int main(int argc, char *argv[]){
 
-    const char* IPaddress;
-    int portNum;
-    //tries to open configure file
-    int fd = open("./.configure", O_WRONLY , S_IRUSR | S_IWUSR);
-    //if found, that means that configure has already been run, good
-    if (fd > 0) {
-            printf("file found! \n");
-            close(fd);
-            //i closed it and opened it again because for some reason i was getting an error
-            int fd = open("./.configure", O_RDONLY );
-            if(fd <0){
-                printf("Error: Could not open file. Please try again.");
-            }
-            //copy all
-            char * temp = (char *)malloc(sizeof(char) * 50);
-            int total_length = read(fd, temp, 50);
-            char* input = (char *)malloc(sizeof(char) * (total_length + 1));
-            strcpy(input, temp);
-            free(temp);
-            char* delim = "\n";
-            IPaddress = strtok(input, delim);
-            portNum = atoi(strtok(NULL, delim));
+    char IPaddress[30];
+    char portNum[6];
 
-            free(input);
-
-            printf ("this is the IP address: %s \n", IPaddress);
-            printf ("this is the Port Number: %d \n", portNum);
-            close(fd);
-    //otherwise check if user has inputed valid requirements for configure
-    } else {
-        //::::::::::::: C O N F I G U R E :::::::::
+    FILE* fp_configure = fopen("./.configure","r");
+    
+    //if opening for read not possible, then it doesnt exist, so configure
+    if(fp_configure == NULL){
+        /******************** C O N F I G U R E  *****************************/
         //check if the first command is configure
         if((strcmp(argv[1], "configure")) != 0){
             printf("Error: First command must be configure. \n");
@@ -44,24 +20,29 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-
-        //create the configure file
-        int fd_configure = open("./.configure", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd_configure < 0) {
-            printf("Error: Could not create configure file. Please try again.\n");
-            return EXIT_FAILURE;
-        }
-        //write the IP Address to file
-        write(fd_configure, argv[2], strlen(argv[2]));
-        //write the port num to file on new line
-        write(fd_configure, "\n", 1);
-        write(fd_configure, argv[3], strlen(argv[3]));
-        write(fd_configure, "\n", 1);
-        close(fd_configure);
+        //create the file
+        //"ab" - open or create file for writing at end-of-file.
+        FILE* fp;
+        fp = fopen("./.configure","ab");
+        //int argPortNum = atoi(argv[3]);
+        //fprintf(fp,"%s %d",argv[2],argPortNum);
+        fputs(argv[2],fp);
+        fputs(" ",fp);
+        fputs(argv[3],fp);
+        fclose(fp);
+        
         //successful configuration
         printf("Successful configuration. \n");
         return EXIT_SUCCESS;
     }
+    printf("file found! \n");
+
+    fscanf(fp_configure,"%s %s",IPaddress,portNum);
+
+    fclose(fp_configure);
+
+    printf ("this is the IP address: %s \n", IPaddress);
+    printf ("this is the Port Number: %s \n", portNum);
 
     /******************** A D D *****************************/
     if((strcmp(argv[1], "add")) == 0){
@@ -85,32 +66,30 @@ int main(int argc, char *argv[]){
     }
     /******************** CONNECT SERVER *****************************/
     printf("Welcome! Attempting to connect to host \n");
-    int n;
+    int sockfd, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
     
-    //signal(SIGINT, ctrlC_shutdown);
-
-    printf("%s\n", IPaddress);
-    server = gethostbyname(IPaddress);
-    printf("%s\n", IPaddress);
-    if (server == NULL) {
-        printf("Error: No such host. \n");
-        return EXIT_FAILURE;
-    }
+    char buffer[256];
     
     //connect to server for further operations
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
         printf("Error: Could not open socket. \n");
     }
-
-    memset(&serv_addr, '\0', sizeof(serv_addr));
     
-    //bzero((char *) &serv_addr, sizeof(serv_addr));
+    //signal(SIGINT, ctrlC_shutdown);
+    server = gethostbyname(IPaddress);
+    printf("%s\n",IPaddress);
+    if (server == NULL) {
+        printf("Error: No such host. \n");
+        //return EXIT_FAILURE;
+    }
+    //memset(&serv_addr, '\0', sizeof(serv_addr));
+    bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-    serv_addr.sin_port = htons(portNum);
+    serv_addr.sin_port = htons(atoi(portNum));
     
     socklen_t size = sizeof(serv_addr);
     
@@ -124,9 +103,8 @@ int main(int argc, char *argv[]){
     printf("Connection Successful!\n");
     //Upon successful connection
 
-    char buffer[256];
     
-    //::::::::::::: C H E C K :: O U T :::::::::
+   /******************** CHECK OUT *****************************/
     if((strcmp(argv[1], "checkout")) == 0){
         //./WTF checkout <project name>
         if(argc != 3) {
@@ -137,7 +115,7 @@ int main(int argc, char *argv[]){
 
         return EXIT_SUCCESS;
     }
-    //::::::::::::: U P D A T E :::::::::
+    /******************** UPDATE *****************************/
     if((strcmp(argv[1], "update")) == 0){
         //./WTF update <project name>
         if(argc != 3) {
@@ -215,7 +193,7 @@ int main(int argc, char *argv[]){
 
         return EXIT_SUCCESS;
     }
-    //::::::::::::: U P G R A D E :::::::::
+    /******************** UPGRADE *****************************/
     if((strcmp(argv[1], "upgrade")) == 0){
         //./WTF upgrade <project name>
         if(argc != 3) {
@@ -226,7 +204,7 @@ int main(int argc, char *argv[]){
 
         return EXIT_SUCCESS;
     }
-    //::::::::::::: C O M M I T :::::::::
+    /******************** COMMIT *****************************/
     if((strcmp(argv[1], "commit")) == 0){
         //./WTF commit <project name>
         if(argc != 3) {
@@ -237,7 +215,7 @@ int main(int argc, char *argv[]){
 
         return EXIT_SUCCESS;
     }
-    //::::::::::::: P U S H :::::::::
+    /******************** PUSH *****************************/
     if((strcmp(argv[1], "push")) == 0){
         //./WTF push <project name>
         if(argc != 3) {
@@ -248,7 +226,7 @@ int main(int argc, char *argv[]){
 
         return EXIT_SUCCESS;
     }
-    //::::::::::::: C R E A T E :::::::::
+    /******************** CREATE *****************************/
     if((strcmp(argv[1], "create")) == 0){
         //./WTF create <project name>
         if(argc != 3) {
@@ -286,7 +264,7 @@ int main(int argc, char *argv[]){
         }
         return EXIT_SUCCESS;
     }
-    //::::::::::::: D E S T R O Y :::::::::
+    /******************** DESTROY *****************************/
     if((strcmp(argv[1], "destroy")) == 0){
         //./WTF destroy <project name>
         if(argc != 3) {
@@ -321,7 +299,7 @@ int main(int argc, char *argv[]){
 
         return EXIT_SUCCESS;
     }
-    //::::::::::::: C U R R E N T :: V E R S I O N :::::::::
+    /******************** CURRENT VERSION *****************************/
     if((strcmp(argv[1], "currentversion")) == 0){
         //./WTF currentversion <project name>
         if(argc != 3) {
@@ -358,7 +336,7 @@ int main(int argc, char *argv[]){
 
         return EXIT_SUCCESS;
     }
-    //::::::::::::: H I S T O R Y :::::::::
+    /******************** HISTORY *****************************/
     if((strcmp(argv[1], "history")) == 0){
         //./WTF history <project name>
         if(argc != 3) {
@@ -369,7 +347,7 @@ int main(int argc, char *argv[]){
 
         return EXIT_SUCCESS;
     }
-    //::::::::::::: R O L L B A C K :::::::::
+    /******************** ROLLBACK *****************************/
     if((strcmp(argv[1], "rollback")) == 0){
         //./WTF rollback <project name> <version>
         if(argc != 4) {
