@@ -13,7 +13,6 @@ threadsLL* traverser = NULL;
 
 void* clientHandler (void *args);
 
-
 //make the socket descriptor a global variable
 //int sock_des = 0;
 
@@ -33,8 +32,6 @@ int main(int argc, char *argv[]) {
     }
     //ok create repo directory
     //int check = mkdir(".server_repo", );
-
-    //int check = mkdir(".server_repo");
 
     int sock_des = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_des < 0)
@@ -72,14 +69,14 @@ int main(int argc, char *argv[]) {
                 newNode->next = front;
                 front = newNode;
             }
-            if((pthread_create(&newNode->name, NULL, clientHandler, &client_socket))!= 0){
-                printf("Error: Could not create a client thread");
-                close(sock_des);
-                return EXIT_FAILURE;
-            }
+
+            printf("before\n");
+            pthread_create(&newNode->name, NULL, clientHandler, &client_socket);
+            printf("after\n");
+		//pthread_join(newNode->name, NULL);
         }
-        
     }
+    return EXIT_FAILURE;
 }
 
 //handles the client on a particular thread. must command calls go in here
