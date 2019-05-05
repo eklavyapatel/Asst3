@@ -6,7 +6,7 @@ int main(int argc, char *argv[]){
     char portNum[6];
 
     FILE* fp_configure = fopen("./.configure","r");
-    
+
     //if opening for read not possible, then it doesnt exist, so configure
     if(fp_configure == NULL){
         /******************** C O N F I G U R E  *****************************/
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]){
         fputs(" ",fp);
         fputs(argv[3],fp);
         fclose(fp);
-        
+
         //successful configuration
         printf("Successful configuration. \n");
         return EXIT_SUCCESS;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
+
         return EXIT_SUCCESS;
     }
     /******************** R E M O V E *****************************/
@@ -70,15 +70,15 @@ int main(int argc, char *argv[]){
     int sockfd, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
-    
+
     char buffer[256];
-    
+
     //connect to server for further operations
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
         printf("Error: Could not open socket. \n");
     }
-    
+
     //signal(SIGINT, ctrlC_shutdown);
     server = gethostbyname(IPaddress);
 
@@ -91,16 +91,16 @@ int main(int argc, char *argv[]){
     serv_addr.sin_family = AF_INET;
     bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
     serv_addr.sin_port = htons(atoi(portNum));
-    
+
     socklen_t size = sizeof(serv_addr);
-    
+
     //wait for 3 seconds
     while(connect(sockfd, (struct sockaddr *)&serv_addr,size)<0)
     {
         printf("Error: Could not connect. Trying Again In 3 Seconds\n");
         sleep(3);
     }
-    
+
     printf("Connection Successful!\n");
     //Upon successful connection
 
@@ -235,7 +235,7 @@ int main(int argc, char *argv[]){
         }
         char* projectName = argv[2];
         int projectLength = strlen(projectName);
-        
+
         printf("%s\n",projectName);
         printf("%d\n", projectLength);
         //good so far
@@ -300,6 +300,8 @@ int main(int argc, char *argv[]){
         if(strcmp(buffer, "Project name doesn't exist") == 0){
           printf("Error: Project doesn't exist - can't delete %s.\n", projectName);
           return EXIT_FAILURE;
+        } else if(strcmp(buffer, "Successfully deleted project") == 0){
+          printf("Server successfully destroyed the project.\n");
         }
 
         return EXIT_SUCCESS;
