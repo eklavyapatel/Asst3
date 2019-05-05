@@ -52,6 +52,17 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
+        
+        char manifestPath[50];
+        sprintf(manifestPath,"./%s/Manifest",projectName);
+        FILE *manifest = fopen(manifestPath, "ab");
+        if (manifest == NULL){
+            printf("Failed to open Manifest file for project.\n");
+        }
+        
+        
+        
+        
 
         return EXIT_SUCCESS;
     }
