@@ -25,15 +25,16 @@ void *clientHandler(void* client_socket){
     while(1){
         //lets reset the string storage client_message before starting
         memset(client_message, '\0', sizeof(client_message));
-        
-        read_return = read(socket_num, client_message, 255);//this will read from socket and store message in client_message char array
-        if(read_return  == -1)
-        {
+        //this will read from socket and store message in client_message char array
+        int read_return = read(socket_num, client_message, 255);
+        if(read_return  == -1){
             //we are going to need to send back read error, please try again
             write(socket_num, "We had trouble reading that. Please try again.", 52);
-            
         }
-        char* command = strtok(client_message, ":");
+        
+        const char s[2] = ":";
+        
+        char* command = strtok(client_message, s);
         
         if(strcmp(command, "checkout")){
             //server-side stuff fore commit goes here
@@ -46,6 +47,20 @@ void *clientHandler(void* client_socket){
         }else if(strcmp(command, "push")){
             
         }else if(strcmp(command, "create")){
+            //recieves the protocol for create, decifer and execute.
+            int projectNameLength;
+            char* projectName;
+            
+            //now create the directory in repo
+            printf ("%d\n",projectNameLength);
+            printf ("%s\n",projectName);
+            
+            
+            
+            
+            
+            
+            return EXIT_SUCCESS;
             
         }else if(strcmp(command, "destroy")){
             
@@ -59,16 +74,17 @@ void *clientHandler(void* client_socket){
             //if not valid command
         }
         close(socket_num);
-        
+    }
         return NULL;
 }
 
 //main function madafaka
 int main(int argc, char *argv[]) {
     
-    signal(SIGINT, ctrlC_shutdown);
+    //signal(SIGINT, ctrlC_shutdown);
     
-    int portno, clilen;
+    int portno;
+    socklen_t clilen;
     char buffer[256];
     struct sockaddr_in serv_addr;
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -79,7 +95,7 @@ int main(int argc, char *argv[]) {
     }
     
     //ok create repo directory
-    int check = mkdir(".server_repo");
+   //int check = mkdir(".server_repo", );
                       
     sock_des = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_des < 0)
@@ -115,9 +131,9 @@ int main(int argc, char *argv[]) {
                 newNode->next = front;
                 front = newNode;
             }
-            
             pthread_create(&newNode->name, NULL, clientHandler, &client_socket);
         }
+        
     }
     /*newsock_des = accept(sock_des, (struct sockaddr *) &cli_addr, &clilen);
     if (newsock_des < 0){

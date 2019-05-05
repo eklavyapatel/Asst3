@@ -1,10 +1,5 @@
 #include "wtf.h"
-
-void error(char *msg)
-{
-    perror(msg);
-    exit(0);
-}
+int sockfd = -1;
 
 int main(int argc, char *argv[]){
 
@@ -30,12 +25,8 @@ int main(int argc, char *argv[]){
             char* delim = "\n";
             IPaddress = strtok(input, delim);
             portNum = atoi(strtok(NULL, delim));
-<<<<<<< HEAD
+        
             free(input);
-            
-=======
-
->>>>>>> 7b6ff67a91cbb99f58d43547be30abb24489d4f9
             printf ("this is the IP address: %s \n", IPaddress);
             printf ("this is the Port Number: %d \n", portNum);
             close(fd);
@@ -79,12 +70,6 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-
-
-
-
-
-
         return EXIT_SUCCESS;
     }
     //::::::::::::: R E M O V E :::::::::
@@ -97,36 +82,51 @@ int main(int argc, char *argv[]){
         printf("good. \n");
         return EXIT_SUCCESS;
     }
-    int sockfd, n;
-
+    printf("Welcome! Attempting to connect to host \n");
+    int n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
-
+    
     //signal(SIGINT, ctrlC_shutdown);
 
-    char buffer[256];
-
+    printf("%s\n", IPaddress);
+    server = gethostbyname(IPaddress);
+    printf("%s\n", IPaddress);
+    if (server == NULL) {
+        printf("Error: No such host. \n");
+        return EXIT_FAILURE;
+    }
+    
     //connect to server for further operations
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0){
-        error("Error: Could not open socket. \n");
+        printf("Error: Could not open socket. \n");
     }
 
-    server = gethostbyname(IPaddress);
-    if (server == NULL) {
-        fprintf(stderr,"Error: No such host. \n");
-        exit(0);
-    }
-    bzero((char *) &serv_addr, sizeof(serv_addr));
+    memset(&serv_addr, '\0', sizeof(serv_addr));
+    
+    //bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
     serv_addr.sin_port = htons(portNum);
     if (connect(sockfd,(struct sockaddr *)&serv_addr,sizeof(serv_addr)) < 0){
-        error("Error: Could not connect. \n");
+        printf("Error: Could not connect. \n");
     }
-    printf("Connection Successful!");
+    
+    socklen_t size = sizeof(serv_addr);
+    
+    //wait for 3 seconds
+    while(connect(sockfd, (struct sockaddr *)&serv_addr,size)<0)
+    {
+        printf("Error: Could not connect. Trying Again In 3 Seconds\n");
+        sleep(3);
+    }
+    
+    printf("Connection Successful!\n");
     //Upon successful connection
 
+    char buffer[256];
+    
     //::::::::::::: C H E C K :: O U T :::::::::
     if((strcmp(argv[1], "checkout")) == 0){
         //./WTF checkout <project name>
@@ -163,14 +163,14 @@ int main(int argc, char *argv[]){
         //write to socket
         int i = write(sockfd, buffer, strlen(buffer));
         if(i < 0){
-          error("Error: Could not write into socket. \n");
+          printf("Error: Could not write into socket. \n");
         }
         //reset buffer to read manifest or error from socket
         bzero(buffer, 255);
         //read response
         i = read(sockfd,buffer,255);
         if(i < 0){
-          error("Error: Could not read from socket. \n");
+          printf("Error: Could not read from socket. \n");
         } else {
           printf("Message from server recieved. \n");
         }
@@ -186,7 +186,7 @@ int main(int argc, char *argv[]){
 
         int fd = open(pathToMan, O_RDONLY);
         if(fd < 0){
-          error("Error: Could not open client side Manifest. \n");
+          printf("Error: Could not open client side Manifest. \n");
         }
         
 
@@ -238,21 +238,22 @@ int main(int argc, char *argv[]){
 
         bzero(buffer,256);
         //inputs protocol onto buffer
-        //protocol is create: <length of project name> : <project name>
+        //protocol is create:<length of project name>:<project name>
         sprintf(buffer, "create:%d:%s", projectLength, projectName);
         //writes on to socket descriptor
         n = write(sockfd,buffer,strlen(buffer));
         if (n < 0){
-            error("Error: Could not write to socket. \n");
+            printf("Error: Could not write to socket. \n");
         }
         bzero(buffer,256);
         //reads response from server onto buffer
         n = read(sockfd,buffer,255);
         if (n < 0){
-            error("Error: Could not read from socket. \n");
+            printf("Error: Could not read from socket. \n");
         }else{
             printf("message from server recieved. \n");
         }
+        printf("%s\n",buffer);
         //Error handling an existing project
         if (strcmp(buffer,"Project name already exists") == 0){
             printf("Error: Project already exists. Please try again.\n");
@@ -312,12 +313,12 @@ int main(int argc, char *argv[]){
     fgets(buffer,255,stdin);
     n = write(sockfd,buffer,strlen(buffer));
     if (n < 0){
-        error("Error: Could not write to socket. \n");
+        printf("Error: Could not write to socket. \n");
     }
     bzero(buffer,256);
     n = read(sockfd,buffer,255);
     if (n < 0){
-        error("Error: Could not read from socket. \n");
+        printf("Error: Could not read from socket. \n");
     }
     printf("%s\n",buffer);
     return 0;
