@@ -25,8 +25,9 @@ int main(int argc, char *argv[]){
             char* delim = "\n";
             IPaddress = strtok(input, delim);
             portNum = atoi(strtok(NULL, delim));
-        
+
             free(input);
+
             printf ("this is the IP address: %s \n", IPaddress);
             printf ("this is the Port Number: %d \n", portNum);
             close(fd);
@@ -175,20 +176,44 @@ int main(int argc, char *argv[]){
           printf("Message from server recieved. \n");
         }
         //error handling if say project doesn't exists
+        int fd2;
         if(strcmp(buffer, "Project .Manifest does not exist on server side. \n") == 0){
           return EXIT_FAILURE;
-        } else {
+        }
           //server sends protocol of Manifest
           //have to decode that manifest hash to get its content
           //have to read and compare with the client side manifest
-        }
-        //lets open client side manifest over here
+          int sfd = open(sockfd,O_RDONLY);
+          bzero(buffer,256);
+          read(sockfd,buffer,255);
+          //now buffer has the protocol Message - tokenize and decode
 
+          char * token = strtok(buffer,":");
+          int counter = 1;
+          int length;
+          char dirName[256];
+          while(token != NULL){
+            if(counter == 1 || counter = 3){
+              length = atoi(token);
+            } else if(counter = 2){
+              sprintf(dirName, token);
+            } else if(counter = 4){
+              //decode this
+            }
+
+          }
+
+        char * clientman = (char*)malloc(INT_MAX);
+        char * serverman = (char*)malloc(INT_MAX);
+        //lets open client side manifest over here
         int fd = open(pathToMan, O_RDONLY);
         if(fd < 0){
           printf("Error: Could not open client side Manifest. \n");
         }
-        
+        //reading client manual
+        read(fd,clientman,INT_MAX);
+        //idk if i will have to read server manifest since i will be decoding the hash
+        read();
 
         return EXIT_SUCCESS;
     }
@@ -232,7 +257,6 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-        
         char* projectName = argv[2];
         int projectLength = strlen(projectName);
 
@@ -251,7 +275,7 @@ int main(int argc, char *argv[]){
         if (n < 0){
             printf("Error: Could not read from socket. \n");
         }else{
-            printf("message from server recieved. \n");
+            printf("Message from server recieved. \n");
         }
         printf("%s\n",buffer);
         //Error handling an existing project
@@ -261,6 +285,7 @@ int main(int argc, char *argv[]){
         }else{
             //otherwise server sends back the protocol for the manifest file.
             //create local version of the project and add this manafest file too it
+            3
         }
         return EXIT_SUCCESS;
     }
@@ -271,7 +296,31 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
+        char* projectName = argv[2];
+        int nameLength = strlen(argv[2]);
 
+        bzero(buffer, 256);
+        //send protocol to the server
+        sprintf(buffer,"destroy:%d:%s", nameLength, projectName);
+        int n = write(sockfd, buffer, strlen(buffer));
+        if(n < 0){
+          error("Error: Could not write to socket. \n");
+        } else {
+          printf("Message sent.\n");
+        }
+
+        //read from socket - this confirms whether the task was completed or failed
+        n = read(sockfd, buffer, 255);
+        if(n < 0){
+          error("Error: Could not read from socket. \n");
+        } else {
+          printf("Message from server recieved. \n");
+        }
+        //check which type of error this is
+        if(strcmp(buffer, "Project name doesn't exist") == 0){
+          printf("Error: Project doesn't exist - can't delete %s.\n", projectName);
+          return EXIT_FAILURE;
+        }
 
         return EXIT_SUCCESS;
     }
@@ -283,6 +332,32 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
 
+        char* projectName = argv[2];
+        int nameLength = strlen(argv[2]);
+
+        bzero(buffer, 256);
+        //make the protocol in buffer
+        sprintf(buffer, "currentversion:%d:%s",nameLength,projectName);
+        //write protocol to server
+        int n = write(sockfd, buffer, strlen(buffer));
+        if(n < 0) {
+          error("Error: Could not write to socket. \n");
+        } else {
+          printf("Message sent.\n");
+        }
+
+        //read message from socket
+        n = read(sockfd, buffer, 255);
+        if(n < 0){
+          error("Error: Could not read from socket. \n");
+        } else {
+          printf("Message from server recieved. \n");
+        }
+        //check for errors
+        if(strcmp(buffer, "Project does not exist.") == 0){
+          printf("Error: Project doesn't exist can not get current version.\n");
+          return EXIT_FAILURE;
+        }
 
         return EXIT_SUCCESS;
     }
