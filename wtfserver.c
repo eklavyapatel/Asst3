@@ -13,14 +13,17 @@ threadsLL* traverser = NULL;
 
 
 //make the socket descriptor a global variable
-int sock_des = 0;
+//int sock_des = 0;
 
 //handles the client on a particular thread. must command calls go in here
-void *clientHandler(void* client_socket){
+void* clientHandler(void* client_socket){
+    printf("at client handler/n");
     int socket_num = *(int*) client_socket;
 
     char client_message[256];
     memset(client_message, '\0', sizeof(client_message));
+    
+    
 
     while(1){
         //lets reset the string storage client_message before starting
@@ -31,6 +34,8 @@ void *clientHandler(void* client_socket){
         if(read_return  == -1){
             //we are going to need to send back read error, please try again
             write(socket_num, "We had trouble reading that. Please try again.", 52);
+        }else{
+            printf("good");
         }
         
         const char s[2] = ":";
@@ -38,11 +43,9 @@ void *clientHandler(void* client_socket){
         char* command = strtok(client_message, s);
 
         read_return = read(socket_num, client_message, 255);//this will read from socket and store message in client_message char array
-        if(read_return  == -1)
-        {
+        if(read_return  == -1){
             //we are going to need to send back read error, please try again
             write(socket_num, "We had trouble reading that. Please try again.", 52);
-
         }
         
         if(strcmp(command, "checkout")){
@@ -60,15 +63,11 @@ void *clientHandler(void* client_socket){
             //recieves the protocol for create, decifer and execute.
             int projectNameLength;
             char* projectName;
-            
+            projectNameLength = atoi(strtok(NULL,s));
+            projectName = strtok(NULL,s);
             //now create the directory in repo
             printf ("%d\n",projectNameLength);
             printf ("%s\n",projectName);
-            
-            
-            
-            
-            
             
             return EXIT_SUCCESS;
             
@@ -116,7 +115,7 @@ int main(int argc, char *argv[]) {
 
     //int check = mkdir(".server_repo");
 
-    sock_des = socket(AF_INET, SOCK_STREAM, 0);
+    int sock_des = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_des < 0)
         printf("Error: Could not create socket. \n");
     bzero((char *) &serv_addr, sizeof(serv_addr));
@@ -143,17 +142,28 @@ int main(int argc, char *argv[]) {
             newNode->next = NULL;
             newNode->sockfd = client_socket;
             if(front == NULL){
-                //printf("Front was pointing to NULL, now points to the first node\n");
+                //printf("Front was pointing to NULL, now points to the first node.\n");
                 front = newNode;
-            }else {
+            }else{
                 //printf("We added a new node to the LL\n");
+                front = newNode;
                 newNode->next = front;
                 front = newNode;
             }
+            printf("before\n");
             pthread_create(&newNode->name, NULL, clientHandler, &client_socket);
+            printf("after\n");
+		pthread_join(newNode->name, NULL);
         }
         
     }
+    
+    
+    
+    
+    
+    
+    
     /*newsock_des = accept(sock_des, (struct sockaddr *) &cli_addr, &clilen);
     if (newsock_des < 0){
         printf("Error: Could not perform accept. \n");
