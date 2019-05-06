@@ -1,0 +1,33 @@
+Test Plan
+1. Run configure - should create a .configure file that has the IP address and Port#
+    - this should be the very first command to be run, if another command was run before there 
+      should be an error
+
+2. Run create - should create a project in the server_repo and a .Manifest file for the project;
+   should also send a copy back to the client
+
+3. Run add - should add an entry to the file in the project's .Manifest
+
+4. Run remove - should remove the entry of the given file from the .Manifest file
+
+5. Run commit - should produce a .commit file if there are differences in the client and server
+   Manifest.
+
+6. Run push - the client will send the .commit and all files list in the commit to the server.
+
+7. Run add/remove to change the client side then run update - should create a .update file on 
+   client side, the client will also be outputting to STDOUT the differences
+
+8. Run upgrade - Client will apply the changes in the .update file and the .update should be 
+   deleted
+
+9. Run history - should receive a file that contains all pushes done to the project
+
+10. Run current version - client will output all files that the server has under the project and 
+    their version numbers
+
+11. Run rollback - the server will revert its current version to a previous version by deleting 
+    all the more recent versions saved
+
+12. Run destroy - server should delete all files within the project directory and the project 
+    directory itself 
