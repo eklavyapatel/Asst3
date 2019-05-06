@@ -7,50 +7,6 @@ typedef struct threadsLL
     struct threadsLL* next;
 } threadsLL;
 
-
-int remove_directory(const char *path){
-   DIR *d = opendir(path);
-   size_t path_len = strlen(path);
-   int r = -1;
-   if (d){
-      struct dirent *p;
-      r = 0;
-      while (!r && (p=readdir(d))){
-          int r2 = -1;
-          char *buf;
-          size_t len;
-          /* Skip the names "." and ".." as we don't want to recurse on them. */
-          if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, "..")){
-             continue;
-          }
-          len = path_len + strlen(p->d_name) + 2;
-          buf = malloc(len);
-          if (buf){
-             struct stat statbuf;
-             snprintf(buf, len, "%s/%s", path, p->d_name);
-             if (!stat(buf, &statbuf)){
-                if (S_ISDIR(statbuf.st_mode)){
-                   r2 = remove_directory(buf);
-                }else{
-                   r2 = unlink(buf);
-                }
-             }
-             free(buf);
-          }
-          r = r2;
-      }
-      closedir(d);
-   }
-   else if(!d){
-     return r;
-   }
-
-   if (!r){
-      r = rmdir(path);
-   }
-   return r;
-}
-
 //set up the LL for threadsLL
 threadsLL* front = NULL;
 threadsLL* traverser = NULL;
@@ -59,6 +15,113 @@ void* clientHandler (void *args);
 
 //make the socket descriptor a global variable
 //int sock_des = 0;
+
+
+int remove_directory(const char *path){
+    DIR *d = opendir(path);
+    size_t path_len = strlen(path);
+    int r = -1;
+    if (d){
+        struct dirent *p;
+        r = 0;
+        while (!r && (p=readdir(d))){
+            int r2 = -1;
+            char *buf;
+            size_t len;
+            /* Skip the names "." and ".." as we don't want to recurse on them. */
+            if (!strcmp(p->d_name, ".") || !strcmp(p->d_name, "..")){
+                continue;
+            }
+            len = path_len + strlen(p->d_name) + 2;
+            buf = malloc(len);
+            if (buf){
+                struct stat statbuf;
+                snprintf(buf, len, "%s/%s", path, p->d_name);
+                if (!stat(buf, &statbuf)){
+                    if (S_ISDIR(statbuf.st_mode)){
+                        r2 = remove_directory(buf);
+                    }else{
+                        r2 = unlink(buf);
+                    }
+                }
+                free(buf);
+            }
+            r = r2;
+        }
+        closedir(d);
+    }
+    else if(!d){
+        return r;
+    }
+    
+    if (!r){
+        r = rmdir(path);
+    }
+    return r;
+}
+
+//method to check if a project exists
+int exists(char *dir,char* project) {
+    
+    char* projectpath = (char*)malloc(9*sizeof(char));
+    strcpy(projectpath, "./server/");
+    strcat(projectpath, project);
+    
+    DIR *folder = opendir(projectpath);
+    if(folder) {
+        close(dir);
+        printf("folder %s exists\n", projectpath);
+        return 1;
+    }
+    printf("folder %s does not exist\n", projectpath);
+    return 0;
+}
+
+
+
+//goes through a directory and gets all the files in it and its subdirectories
+void traverseDir(char *dir) {
+    
+    DIR *folder;
+    
+    if(!(folder = opendir(dir))) {
+        return;
+    }
+    
+    struct dirent *curr = readdir(folder);
+    curr = readdir(folder);
+    
+    while((curr = readdir(folder)) != NULL) {
+        char pathway[1024];
+        if(curr->d_type != DT_DIR){ //file
+            int totalLen = strlen(curr->d_name)+1;
+            char* temp1 = (char*)malloc(totalLen*sizeof(char));
+            strcat(temp1, "/");
+            strcat(temp1, curr->d_name);
+            totalLen = strlen(dir) + strlen(temp1);
+            char* temp = (char*)malloc(totalLen*sizeof(char));
+            strcat(temp, dir);
+            strcat(temp, temp1);
+            
+            //saves names of files in linked list
+            if(fileNames == NULL){
+                fileNames = (struct node*)malloc(1*sizeof(struct node));
+                fileNames->name = temp;
+                fileTrav = fileNames;
+            } else {
+                struct node* newPath = (struct node*)malloc(1*sizeof(struct node));
+                newPath->name = temp;
+                fileTrav->next =  newPath;
+                fileTrav = fileTrav->next;
+            }
+            
+        } else { //folder
+            snprintf(pathway, sizeof(pathway), "%s/%s", dir, curr->d_name);
+            traverseDir(pathway);
+        }
+    }
+    close(folder);
+}
 
 //main function madafaka
 int main(int argc, char *argv[]) {
@@ -76,7 +139,7 @@ int main(int argc, char *argv[]) {
     }
     //ok create repo directory
     //int check = mkdir(".server_repo", );
-    char* repo = "server_repo";
+    char* repo = "./server_repo";
     int check = mkdir(repo, 0700);
     if(!check){
         printf("Repository Initiated.\n");
@@ -157,6 +220,64 @@ void *clientHandler(void* client_socket){
         //printf("%s\n", command);
 
         if((strcmp(command, "checkout")) == 0){
+            if(exists("./server", project) != 1) {
+                write(socket_num, "project not found", 18);
+                return;
+            }
+            write(socket_num, "Sending project...\n", 43);
+            //printf("project name %s\n", project);
+            char* projectpath = (char*)malloc((14+strlen(project))*sizeof(char));
+            projectpath[0] = '.';
+            projectpath[1] = '/';
+            projectpath[2] = 's';
+            projectpath[3] = 'e';
+            projectpath[4] = 'r';
+            projectpath[5] = 'v';
+            projectpath[6] = 'e';
+            projectpath[7] = 'r';
+            projectpath[8] = '_';
+            projectpath[9] = 'r';
+            projectpath[10] = 'e';
+            projectpath[11] = 'p';
+            projectpath[12] = 'o';
+            projectpath[13] = '/';
+            projectpath = strcat(projectpath, project);
+            /printf("project path %s\n", projectpath);
+            traverseDir(projectpath);
+            
+            char buffer[256];
+            
+            while(fileNames != NULL) {
+                bzero(buffer, 256);
+                //printf("linked list %s\n", fileNames->name);
+                read(sd, buffer, 256);
+                if(strcmp(buffer, "next") == 0) {
+                    send(sd, fileNames->name, strlen(fileNames->name), 0);
+                    bzero(buffer, 256);
+                    read(sd, buffer, 256);
+                    int fd = open(fileNames->name, O_RDONLY);
+                    char* stringContent = "empty\a";
+                    if(fsize(fileNames->name) >= 1) {
+                        stringContent = readFile(fd, fileNames->name);
+                        //printf("content %s\n", stringContent);
+                    }
+                    send(sd, stringContent, strlen(stringContent), 0);
+                }
+                fileNames = fileNames->next;
+            }
+            
+            read(sd, buffer, 256);
+            send(sd, "done", 5, 0);
+            bzero(buffer, 256);
+            close(sd);
+        }
+            
+            
+            
+            
+            
+            
+            
             //server-side stuff fore commit goes here
         }else if((strcmp(command, "update")) == 0){
 

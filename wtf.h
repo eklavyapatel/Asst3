@@ -15,5 +15,8 @@
 #include <signal.h>
 //#include "sha256.h"
 #include <openssl/sha.h>
-#include <openssl/evp.h>
-#include <openssl/err.h>
+//#include <openssl/evp.h>
+//#include <openssl/err.h>
+
+//export LDFLAGS="-L/usr/local/opt/openssl/lib"
+//export CPPFLAGS="-I/usr/local/opt/openssl/include"
