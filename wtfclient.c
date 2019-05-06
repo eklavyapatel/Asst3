@@ -1,5 +1,9 @@
 #include "wtf.h"
 
+int calc_sha256 (char* path, char output[65]){
+    
+}
+
 int main(int argc, char *argv[]){
 
     char IPaddress[30];
@@ -52,13 +56,47 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
+        char* projectName = argv[2];
+        char* fileName = argv[3];
         
-        char manifestPath[50];
+        SHA_CTX ctx;
+        int BUFSIZE = 100;
+        char content[BUFSIZE];
+        size_t len;
+        //calc_sha256(fileName, content);
+        
+        FILE *f = fopen(fileName, "r");
+        if (f != NULL) {
+            fprintf(stderr, "couldn't open %s\n", fileName);
+            return 1;
+        }
+        
+        SHA1_Init(&ctx);
+        
+        do {
+            len = fread(content, 1, BUFSIZE, f);
+            SHA1_Update(&ctx, content, len);
+        } while (len == BUFSIZ);
+        
+        SHA1_Final(content, &ctx);
+        
+        fclose(f);
+        
+        for (len = 0; len < SHA_DIGEST_LENGTH; ++len)
+            printf("%02x", content[len]);
+        putchar('\n');
+        
+        //printf ("%s\n", content);
+        
+        
+        
+        /*char manifestPath[50];
         sprintf(manifestPath,"./%s/Manifest",projectName);
+        //"r+" - apends to file
         FILE *manifest = fopen(manifestPath, "ab");
         if (manifest == NULL){
             printf("Failed to open Manifest file for project.\n");
-        }
+        }*/
         
         
         

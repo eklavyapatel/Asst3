@@ -13,4 +13,7 @@
 #include <limits.h>
 #include <pthread.h>
 #include <signal.h>
-
+//#include "sha256.h"
+#include <openssl/sha.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
