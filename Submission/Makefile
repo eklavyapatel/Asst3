@@ -1,13 +1,8 @@
-all: WTF WTFserver
+all: foo
 
-WTF: wtfclient.c
+foo:
 	gcc wtfclient.c -o WTF -lssl -lcrypto
-
-WTFserver: wtfserver.c
 	gcc wtfserver.c -o WTFserver -pthread
-
+	gcc WTFtest.c -o WTFtest
 clean:
-	rm -rf WTF WTFserver
-
-test: WTFtest.c
-	gcc WTFtest.c -o WTFtest 
+	rm -rf WTFtest WTFserver WTF
