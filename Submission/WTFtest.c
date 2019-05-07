@@ -1,4 +1,5 @@
-#inlcude "wtf.h"
+#include "wtf.h"
+#include <sys/wait.h>
 
 int main(int argc, char**argv){
     pid_t child = fork();
@@ -9,32 +10,32 @@ int main(int argc, char**argv){
     if(child != 0){
         wait(NULL);
     } else {
-      execvp("./wtfclient", "configure", "cp.cs.rutgers.edu", "8080");
-      sleep();
-      execvp("./wtfclient", "create", "Example1");
-      sleep();
-      execvp("./wtfclient", "add", "File1");
-      sleep();
-      execvp("./wtfclient", "add", "File2");
-      sleep();
-      execvp("./wtfclient", "commit", "Example1");
-      sleep();
-      execvp("./wtfclient", "push", "Example1");
-      sleep();
-      execvp("./wtfclient", "remove", "File2");
-      sleep();
-      execvp("./wtfclient", "update", "Example1");
-      sleep();
-      execvp("./wtfclient", "upgrade", "Example1");
-      sleep();
-      execvp("./wtfclient", "history", "Example1");
-      sleep();
-      execvp("./wtfclient", "currentversion", "Example1");
-      sleep();
-      execvp("./wtfclient", "rollback", "Example1", "1");
-      sleep();
-      execvp("./wtfclient", "destroy", "Example1");
-      sleep();
+      execlp("./wtfclient", "configure", "cp.cs.rutgers.edu", "8080");
+      sleep(5);
+      execlp("./wtfclient", "create", "Example1");
+      sleep(5);
+      execlp("./wtfclient", "add", "File1");
+      sleep(5);
+      execlp("./wtfclient", "add", "File2");
+      sleep(5);
+      execlp("./wtfclient", "commit", "Example1");
+      sleep(5);
+      execlp("./wtfclient", "push", "Example1");
+      sleep(5);
+      execlp("./wtfclient", "remove", "File2");
+      sleep(5);
+      execlp("./wtfclient", "update", "Example1");
+      sleep(5);
+      execlp("./wtfclient", "upgrade", "Example1");
+      sleep(5);
+      execlp("./wtfclient", "history", "Example1");
+      sleep(5);
+      execlp("./wtfclient", "currentversion", "Example1");
+      sleep(5);
+      execlp("./wtfclient", "rollback", "Example1", "1");
+      sleep(5);
+      execlp("./wtfclient", "destroy", "Example1");
+      sleep(5);
     }
 
 return 0;
