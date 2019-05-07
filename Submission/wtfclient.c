@@ -1,22 +1,32 @@
 #include "wtf.h"
 
-//Function to Hash file contents with SHA256
-char* calcHash(char* filepath) {
-    printf("in hash function\n");
-    FILE *content = fopen(filepath,"rb");
-    if (content == NULL){
-        printf("Error: Couldn't open file.\n");
-        return NULL;
-    }
 
+char* readFile(FILE* content){
     fseek(content, 0, SEEK_END);
     long fsize = ftell(content);
     fseek(content, 0, SEEK_SET);
     
     char *s = malloc(fsize + 1);
     fread(s, 1, fsize, content);
+    return s;
+}
+
+//Function to Hash file contents with SHA256
+char* calcHash(char* filepath) {
+    FILE *content = fopen(filepath,"rb");
+    if (content == NULL){
+        printf("Error: Couldn't open file.\n");
+        return NULL;
+    }
+    char* s = readFile(content);
+    long fsize = ftell(content);
+    /*fseek(content, 0, SEEK_END);
+    long fsize = ftell(content);
+    fseek(content, 0, SEEK_SET);
+    
+    char *s = malloc(fsize + 1);
+    fread(s, 1, fsize, content);*/
     fclose(content);
-    printf("file work done\n");
     
     SHA256_CTX sha256;
     unsigned char hash[SHA256_DIGEST_LENGTH];
@@ -39,23 +49,19 @@ char* calcHash(char* filepath) {
 }
 
 // checks if the file exists
-int exists(char *dir,char* project) {
+/*int exists(char *dir,char* project) {
     char* projectpath = (char*)malloc((9+strlen(project))*sizeof(char));
     projectpath = strcpy(projectpath, "./");
     projectpath = strcat(projectpath, project);
     
     DIR *folder = opendir(projectpath);
     if(folder) {
-        close(dir);
         printf("folder %s exists\n", projectpath);
         return 1;
     }
     printf("folder %s does not exist\n", projectpath);
     return 0;
 }
-return 0;
-}
-
 
 //converts server path to client path
 char* dirpath(char* project, char* file) {
@@ -70,7 +76,7 @@ char* dirpath(char* project, char* file) {
     }
     projectpath[length] = '\0';
     return projectpath;
-}
+}*/
 
 int add (char* projectName, char* filePath){
     //1. Check if Project exists
@@ -133,43 +139,85 @@ int add (char* projectName, char* filePath){
     }
 }
 
-void checkout (char* projectName, int sockfd){
-    if(exists(".", projectName) == 1) {
-        printf("Error: Project already exists on local branch.\n");
+/*//the method to handle commit calls
+void commit(char* project, int sock) {
+    
+    char* sendstring = (char*)malloc(8*sizeof(char));
+    strcpy(sendstring, "commit ");
+    strcat(sendstring, project);
+    send(sock, sendstring, strlen(sendstring), 0); //project name
+    char buffer[1024];
+    read(sock, buffer, 1024);
+    if(strcmp(buffer, "project already exists") == 0) {
+        printf("Message from server: %s\n", buffer);
+        return;
+    }
+    char* clSTR;
+    chdir(project);
+    int fd = open( ".Manifest", O_RDONLY );
+    
+    clSTR = readFile(fd);
+    
+    struct node *servMan, *clientMan;
+    servMan = (struct node *) malloc(sizeof(struct node));
+    servMan= tokenizer1(buffer);
+    clientMan = (struct node *) malloc(sizeof(struct node));
+    clientMan= tokenizer1(clSTR);
+    
+    struct node* locMancp = (struct node*)malloc(sizeof(struct node));
+    locMancp = clientMan;
+    struct node* locMancp1 = (struct node*)malloc(sizeof(struct node));
+    locMancp1 = clientMan;
+    struct node* locservcp = (struct node*)malloc(sizeof(struct node));
+    locservcp = servMan;
+    
+    int sv,cv,len;
+    
+    sv = buffer[0]-'0';
+    cv= clSTR[0]-'0';
+    printf("sv %d\ncv %d\n",sv,cv);
+    
+    while(locMancp!=NULL){
+        scmpr(cv,sv,locservcp,locMancp);
+        
+        locMancp=locMancp->next;
+        
+    }
+    while(locservcp!=NULL){
+        
+        scmprsvr(locservcp,locMancp1);
+        
+        locservcp=locservcp->next;
+    }
+}*/
+
+/*//gets a project from the server
+void checkout(char* project, int sock) {
+    if(exists(".", project) == 1) {
+        printf("Already have project\n");
         //return;
     }
-    
-    char protocol[256];
-    bzero(buffer,256);
-    //inputs protocol onto buffer
-    //protocol is checkout:<project name>
-    sprintf(buffer, "checkout:%s", projectName);
-    //writes on to socket descriptor
-    n = write(sockfd,buffer,strlen(buffer));
-    if (n < 0){
-        printf("Error: Could not write to socket. \n");
-    }
+    send(sock, "checkout ", 9, 0);
+    send(sock, project, strlen(project), 0); //project name
     char buffer[1024];
     bzero(buffer, 1024);
-    read(sockfd, buffer, 1024);
+    read(sock, buffer, 1024);
     if(strcmp(buffer, "project not found") == 0) {
         printf("Message from server: %s\n", buffer);
         bzero(buffer, 1024);
         return;
-    }else {
+    }
+    else {
         mkdir(project, 0777);
     }
     int n;
-
-    n = write(sockfd,"next",5);
-    if (n < 0){
-        printf("Error: Could not write to socket. \n");
-    }
+    
+    send(sock, "next", 5, 0);
     while(1) {
         //send(sock, "next", 5, 0);
         bzero(buffer, 1024);
-        n = read(sockfd, buffer, 1024);
-        if(strcmp(buffer, "done") == 0) {
+        n = read(sock, buffer, 1024); //file path
+        if(strcmp(buffer, "done") == 0) { //why ???
             break;
         }
         char* filepath = (char*)malloc(256*sizeof(char));
@@ -178,23 +226,22 @@ void checkout (char* projectName, int sockfd){
             j = i+9;
             filepath[i] = buffer[j];
         }
+        char* path = dirpath(project, filepath);
+        printf("path: %s\n", path);
+        mkdir(path, 0777);
+        printf("file %s\n", filepath);
+        int fd = open(filepath, O_RDWR | O_TRUNC | O_CREAT, 0644);
+        send(sock, "next", 5, 0);
+        bzero(buffer, 1024);
+        read(sock, buffer, 1024); //contents
+        //printf("contents %s\n", buffer);
+        if(strcmp(buffer, "empty\a") != 0) {
+            write(fd, buffer, strlen(buffer));
+        }
+        send(sock, "next", 5, 0);
     }
-    char* path = dirpath(project, filepath);
-    printf("path: %s\n", path);
-    mkdir(path, 0777);
-    printf("file %s\n", filepath);
-    int fd = open(filepath, O_RDWR | O_TRUNC | O_CREAT, 0644);
-    send(sock, "next", 5, 0);
     bzero(buffer, 1024);
-    read(sock, buffer, 1024); //contents
-    //printf("contents %s\n", buffer);
-    if(strcmp(buffer, "empty\a") != 0) {
-        write(fd, buffer, strlen(buffer));
-    }
-    send(sock, "next", 5, 0);
-}
-bzero(buffer, 1024);
-}
+}*/
 
 int main(int argc, char *argv[]){
 
@@ -249,7 +296,7 @@ int main(int argc, char *argv[]){
         }
         char* projectName = argv[2];
         char* filePath = argv[3];
-        if((add(projectName, filePath)) == NULL){
+        if((add(projectName, filePath)) == 0){
             printf("Error: Failure in adding file to Repository\n");
             return EXIT_FAILURE;
         }else{
@@ -314,7 +361,7 @@ int main(int argc, char *argv[]){
             return EXIT_FAILURE;
         }
         char* projectName = argv[2];
-        checkout(projectName, sock);)
+        //checkout(projectName, sockfd);
 
         return EXIT_SUCCESS;
     }
@@ -414,7 +461,8 @@ int main(int argc, char *argv[]){
             printf("Error: Invalid number of arguments. \n");
             return EXIT_FAILURE;
         }
-
+        
+        //commit(argv[2],sockfd);
 
         return EXIT_SUCCESS;
     }

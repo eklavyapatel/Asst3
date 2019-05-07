@@ -60,7 +60,7 @@ int remove_directory(const char *path){
     return r;
 }
 
-//method to check if a project exists
+/*//method to check if a project exists
 int exists(char *dir,char* project) {
     
     char* projectpath = (char*)malloc(9*sizeof(char));
@@ -121,7 +121,7 @@ void traverseDir(char *dir) {
         }
     }
     close(folder);
-}
+}*/
 
 //main function madafaka
 int main(int argc, char *argv[]) {
@@ -220,7 +220,7 @@ void *clientHandler(void* client_socket){
         //printf("%s\n", command);
 
         if((strcmp(command, "checkout")) == 0){
-            if(exists("./server", project) != 1) {
+            /*if(exists("./server", project) != 1) {
                 write(socket_num, "project not found", 18);
                 return;
             }
@@ -252,9 +252,9 @@ void *clientHandler(void* client_socket){
                 //printf("linked list %s\n", fileNames->name);
                 read(sd, buffer, 256);
                 if(strcmp(buffer, "next") == 0) {
-                    send(sd, fileNames->name, strlen(fileNames->name), 0);
+                    send(socket_num, fileNames->name, strlen(fileNames->name), 0);
                     bzero(buffer, 256);
-                    read(sd, buffer, 256);
+                    read(socket_num, buffer, 256);
                     int fd = open(fileNames->name, O_RDONLY);
                     char* stringContent = "empty\a";
                     if(fsize(fileNames->name) >= 1) {
@@ -266,18 +266,11 @@ void *clientHandler(void* client_socket){
                 fileNames = fileNames->next;
             }
             
-            read(sd, buffer, 256);
-            send(sd, "done", 5, 0);
+            read(socket_num, buffer, 256);
+            send(socket_num, "done", 5, 0);
             bzero(buffer, 256);
-            close(sd);
-        }
-            
-            
-            
-            
-            
-            
-            
+            close(socket_num);
+        }*/
             //server-side stuff fore commit goes here
         }else if((strcmp(command, "update")) == 0){
 
