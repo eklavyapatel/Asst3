@@ -6,13 +6,8 @@ WTF: wtfclient.c
 WTFserver: wtfserver.c
 	gcc wtfserver.c -o WTFserver -pthread
 
-test: WTFtest.o
-	gcc WTFtest.c -o WTFtest
-
-WTFtest.o: WTFtest.c
-	gcc WTFtest.c -o WTFtest
-
 clean:
-	rm -rf WTF
-	rm -rf WTFserver
-	rm -rf WTFtest
+	rm -rf WTF WTFserver
+
+test: WTFtest.c
+	gcc WTFtest.c -o WTFtest 

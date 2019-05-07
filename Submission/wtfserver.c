@@ -138,8 +138,8 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
     //ok create repo directory
-    //int check = mkdir(".server_repo", );
-    char* repo = "./server_repo";
+    //int check = mkdir("./.server_repo", );
+    char* repo = "./.server_repo";
     int check = mkdir(repo, 0700);
     if(!check){
         printf("Repository Initiated.\n");
@@ -291,7 +291,7 @@ void *clientHandler(void* client_socket){
             //printf ("%s\n",projectName);
 
             char repoPath[50];
-            sprintf(repoPath,"./server_repo/%s/",projectName);
+            sprintf(repoPath,"./.server_repo/%s/",projectName);
             //printf("%s\n",repoPath);
             struct stat projectDir = {0};
             //now create the directory in repo
@@ -302,7 +302,7 @@ void *clientHandler(void* client_socket){
                 }
                 //project file created. create version 1 file and manifest file
                 char version1Path[50];
-                sprintf(version1Path,"./server_repo/%s/version1",projectName);
+                sprintf(version1Path,"./.server_repo/%s/version1",projectName);
                 //printf("%s\n",version1Path);
                 check = mkdir(version1Path, 0700);
                 if(check != 0){
@@ -310,7 +310,7 @@ void *clientHandler(void* client_socket){
                 }
                 //create manifest file in it
                 char manifestPath[50];
-                sprintf(manifestPath,"./server_repo/%s/version1/Manifest",projectName);
+                sprintf(manifestPath,"./.server_repo/%s/version1/.Manifest",projectName);
                 //printf("%s\n",manifestPath);
                 //"ab+" - Creates an empty file for both reading and writing.
                 FILE *manifest = fopen(manifestPath, "w+");
@@ -349,7 +349,7 @@ void *clientHandler(void* client_socket){
             //Step 3: Delete all files and subdirectories in the project directory
               //Substep 1: First create a path to the project in the server repo
             char deletebuff [256];
-            strcpy(deletebuff, "./server_repo/");
+            strcpy(deletebuff, "./.server_repo/");
             strcat(deletebuff, projectName);
             //printf("%s\n", deletebuff);
               //Substep 2: Open the directory and delete all children
@@ -368,7 +368,7 @@ void *clientHandler(void* client_socket){
           int nameLength = atoi(strtok(NULL,s));
           char * projectName = strtok(NULL,s);
           char cvbuff [256];
-          sprintf(cvbuff, "./server_repo/%s", projectName);
+          sprintf(cvbuff, "./.server_repo/%s", projectName);
 
           //Step 1: Open the directory
           DIR *d = opendir(cvbuff);
@@ -377,8 +377,8 @@ void *clientHandler(void* client_socket){
             write(socket_num, "Project does not exist.", 23);
             return;
           } else {
-            while(file = readdir(d) != NULL){
-              if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0 ){
+            while((file=readdir(d)) != NULL){
+              if(strcmp(file->d_name, ".") == 0 || strcmp(file->d_name, "..") == 0 ){
                 continue;
               }
 

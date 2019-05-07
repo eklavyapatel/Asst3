@@ -1,0 +1,97 @@
+Eklavya Patel
+
+Avi Patel
+
+Test Cases
+---------------------------------------------------------
+
+INPUT: ./client configure kill.cs.rutgers.edu 9876
+
+CLIENT OUPUT: Successful configuration.
+
+---------------------------------------------------------
+
+INPUT: ./client create ironthrone
+
+CLIENT OUTPUT: 	Welcome! Attempting to connect to server. 
+		Connection Successful!
+		Local Repository successfully created. 
+
+SERVER OUTPUT: Project: ironthrone, successfully created.
+
+---------------------------------------------------------
+
+INPUT: ./client add ironthrone ./Rheaghal.txt
+
+CLIENT OUTPUT: File successfully added to Local Repository
+
+---------------------------------------------------------
+
+INPUT: ./client add ironthrone ./is.txt
+
+CLIENT OUTPUT: File successfully added to Local Repository
+
+---------------------------------------------------------
+
+INPUT: ./client add ironthrone ./dead.txt
+
+CLIENT OUTPUT: File successfully added to Local Repository
+
+---------------------------------------------------------
+
+INPUT: ./client remove ironthrone ./is.txt
+
+CLIENT OUTPUT: File successfully removed from Local Repository
+
+---------------------------------------------------------
+
+INPUT: ./client checkout ironthrone 
+
+CLIENT OUTPUT:	Welcome! Attempting to connect to server. 
+		Connection Successful!
+		Project already exists
+
+SERVER OUTPUT: 	sending project....
+
+---------------------------------------------------------
+
+INPUT: ./client checkout dragonstone 
+
+CLIENT OUTPUT:	Welcome! Attempting to connect to server. 
+		Connection Successful!
+		Local Repository created
+
+SERVER OUTPUT: 	sending project....
+
+---------------------------------------------------------
+
+INPUT: ./client create ironthrone
+
+CLIENT OUTPUT:	Welcome! Attempting to connect to server. 
+		Connection Successful!
+		Project ironthron successfully destroyed
+
+SERVER OUTPUT: 	destroying project....
+
+---------------------------------------------------------
+
+INPUT: ./client currentversion dragonstone 
+
+CLIENT OUTPUT:	Welcome! Attempting to connect to server. 
+		Connection Successful!
+		Version #4
+		Version #2	dragonstone/Rheaghal.txt
+		Version #1	dragonstone/dead.txt
+
+SERVER OUTPUT: 	sending current version of dragonstone....
+
+
+
+
+
+
+
+
+
+
+
